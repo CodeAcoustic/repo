@@ -22,15 +22,25 @@ cd repo
 `./sync setup` holds your hand through it:
 
 1. Creates a Python virtual environment and installs `ytmusicapi` + `yt-dlp`
-2. Walks you through grabbing **one request** from `music.youtube.com`
-   (DevTools → Network → reload → right-click the first request → **Copy → Copy as cURL** → paste)
+2. Walks you through copying the **Request Headers** of one request from
+   `music.youtube.com` and pasting it here
 3. Tests the connection and tells you how many liked songs it found
 
 The result is saved to `browser.json`, which is git-ignored.
 
-> **Important:** always use **Copy → Copy as cURL**.
-> Copying individual headers or `document.cookie` misses/truncates the protected cookies
-> (`__Secure-3PSID`, `HSID`, …) and the connection will look signed-out.
+### Getting your Request Headers (any browser)
+
+1. Open `https://music.youtube.com` and log in
+2. Press `F12` → **Network** tab → reload the page (`Ctrl+R`)
+3. Click the first `music.youtube.com` request at the top of the list
+4. Open its **Headers** tab and find the **Request Headers** panel:
+   - Chrome/Edge: click the copy icon (two stacked squares) at the panel's top-right
+   - Firefox: right-click inside the panel → **Copy**
+5. Paste it into the terminal, press `Enter`, then `Ctrl-D` to finish
+
+> **Important:** copy the whole Request Headers panel. Copying just the cookie or
+> `document.cookie` misses/truncates YouTube's protected cookies (`__Secure-3PSID`,
+> `HSID`, …) and the connection will look signed-out.
 
 ## Usage
 
