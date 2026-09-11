@@ -11,6 +11,7 @@ import json
 import re
 import sqlite3
 import sys
+import time
 from pathlib import Path
 
 DIR = Path(__file__).resolve().parent
@@ -32,19 +33,24 @@ def build_browser_headers(cookie):
 
 
 def verify():
-    try:
-        from ytmusicapi import YTMusic
+    from ytmusicapi import YTMusic
 
-        yt = YTMusic(str(BROWSER_JSON))
-        count = len(yt.get_liked_songs(limit=None)["tracks"])
-        print(f"[+] Connected! Found {count} liked songs. Run ./sync to download them.")
-        return True
-    except Exception as e:
-        err = str(e)
-        if len(err) > 200:
-            err = err[:200] + "..."
-        print(f"[-] Saved browser.json, but couldn't verify it: {err}")
-        return False
+    last_err = None
+    for attempt in range(3):
+        try:
+            yt = YTMusic(str(BROWSER_JSON))
+            count = len(yt.get_liked_songs(limit=None)["tracks"])
+            print(f"[+] Connected! Found {count} liked songs. Run ./sync to download them.")
+            return True
+        except Exception as e:
+            last_err = str(e)
+            if attempt < 2:
+                time.sleep(5)
+    err = last_err
+    if len(err) > 200:
+        err = err[:200] + "..."
+    print(f"[-] Saved browser.json, but couldn't verify it: {err}")
+    return False
 
 
 # --- auto connection -------------------------------------------------------
@@ -54,6 +60,9 @@ def firefox_family_cookies(patterns=None):
     """Read unencrypted cookies.sqlite from Firefox-family browsers (incl. Flatpak)."""
     patterns = patterns or [
         "~/.mozilla/firefox/*/cookies.sqlite",
+        "~/.config/zen/*/cookies.sqlite",
+        "~/.config/librewolf/*/cookies.sqlite",
+        "~/.config/waterfox/*/cookies.sqlite",
         "~/.var/app/*/.mozilla/firefox/*/cookies.sqlite",
         "~/.var/app/*/.mozilla/*/*/cookies.sqlite",
         "~/.var/app/*/.librewolf/*/*/cookies.sqlite",
@@ -73,7 +82,10 @@ def firefox_family_cookies(patterns=None):
             continue
         for host, name, value in rows:
             host = host.lower()
-            if host.endswith("youtube.com") or host.endswith("google.com"):
+            if (
+                (host.endswith("youtube.com") or host.endswith("google.com"))
+                and not name.startswith("ST-")
+            ):
                 seen[name] = value
 
     if seen and "__Secure-3PAPISID" in seen:
@@ -99,6 +111,7 @@ def chrome_family_cookies():
             f"{c.name}={c.value}"
             for c in jar
             if (c.domain or "").lstrip(".").endswith(("youtube.com", "google.com"))
+            and not c.name.startswith("ST-")
         ]
         if pairs and any("__Secure-3PAPISID" in p or "__Secure-3PSID" in p for p in pairs):
             return "; ".join(pairs)
@@ -175,7 +188,10 @@ def parse_curl(text):
 
 def manual_connect():
     steps()
-    first = input("Paste your Request Headers (then Enter, Ctrl-D): ").strip()
+    try:
+        first = input("Paste your Request Headers (then Enter, Ctrl-D): ").strip()
+    except EOFError:
+        sys.exit("[!] No input given. Run './sync auth' again in an interactive terminal.")
     if not first:
         sys.exit("[!] Nothing pasted. Please try again.")
     text = read_paste(first)
