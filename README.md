@@ -22,11 +22,15 @@ cd repo
 `./sync setup` holds your hand through it:
 
 1. Creates a Python virtual environment and installs `ytmusicapi` + `yt-dlp`
-2. Walks you through getting your cookie from `music.youtube.com`
-   (F12 → Console → `copy(document.cookie)` → paste it here)
+2. Walks you through grabbing one cookie from `music.youtube.com`
+   (DevTools → Network → reload → first request → right-click `Cookie:` → Copy value → paste)
 3. Tests the connection and tells you how many liked songs it found
 
 The cookie is saved to `browser.json`, which is git-ignored.
+
+> **Important:** copy the cookie from the **Network tab**, not the Console.
+> `document.cookie` omits YouTube's protected cookies (`__Secure-3PSID`, `HSID`, …) and
+> the connection will look signed-out.
 
 ## Usage
 
