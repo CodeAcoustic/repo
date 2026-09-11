@@ -19,12 +19,14 @@ cd repo
 ./sync setup
 ```
 
-`./sync setup` does everything for you:
+`./sync setup` holds your hand through it:
 
 1. Creates a Python virtual environment and installs `ytmusicapi` + `yt-dlp`
-2. Starts the YouTube Music authentication flow — just paste the request headers
-   from `music.youtube.com` (DevTools → Network → the `browse` request → copy
-   headers). It saves them to `browser.json`, which is git-ignored.
+2. Walks you through getting your cookie from `music.youtube.com`
+   (F12 → Console → `copy(document.cookie)` → paste it here)
+3. Tests the connection and tells you how many liked songs it found
+
+The cookie is saved to `browser.json`, which is git-ignored.
 
 ## Usage
 
@@ -43,5 +45,7 @@ cd repo
 
 ## Notes / Troubleshooting
 
-- Auth files (`browser.json`, `oauth.json`) are private — never commit or share them.
-- If downloads stop working, your auth may have expired: run `./sync auth`.
+- `browser.json` contains your login cookie — it's git-ignored, never commit or
+  share it. Don't paste browser.json content into GitHub issues.
+- Cookies can expire. If downloads stop working, run `./sync auth` to reconnect
+  with a fresh cookie.

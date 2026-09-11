@@ -22,8 +22,7 @@ ensure_env() {
 case "${1:-}" in
     setup|auth)
         ensure_env
-        venv/bin/ytmusicapi browser
-        echo "[sync] Account connected. Run ./sync to start downloading."
+        venv/bin/python auth.py
         ;;
     *)
         ensure_env
