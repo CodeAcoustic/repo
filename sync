@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# ytmusic-sync — download your YouTube Music liked songs
+# Usage: ./sync [setup|auth]
+set -euo pipefail
+
+# Resolve project dir regardless of where the script is called from.
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$here"
+
+# First-run setup: create venv + install deps.
+ensure_env() {
+    if [ ! -x venv/bin/python ]; then
+        echo "[sync] First-run setup: creating Python environment..."
+        [ -d venv ] && rm -rf venv
+        python3 -m venv venv
+        venv/bin/pip install -q --upgrade pip
+        venv/bin/pip install -q ytmusicapi yt-dlp
+        echo "[sync] Environment ready."
+    fi
+}
+
+case "${1:-}" in
+    setup|auth)
+        ensure_env
+        venv/bin/ytmusicapi browser
+        echo "[sync] Account connected. Run ./sync to start downloading."
+        ;;
+    *)
+        ensure_env
+        exec venv/bin/python download_liked_songs.py "$@"
+        ;;
+esac
