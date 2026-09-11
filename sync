@@ -14,7 +14,7 @@ ensure_env() {
         [ -d venv ] && rm -rf venv
         python3 -m venv venv
         venv/bin/pip install -q --upgrade pip
-        venv/bin/pip install -q ytmusicapi yt-dlp
+        venv/bin/pip install -q ytmusicapi yt-dlp browser-cookie3
         echo "[sync] Environment ready."
     fi
 }
@@ -22,7 +22,8 @@ ensure_env() {
 case "${1:-}" in
     setup|auth)
         ensure_env
-        venv/bin/python auth.py
+        shift || true
+        exec venv/bin/python auth.py "$@"
         ;;
     *)
         ensure_env

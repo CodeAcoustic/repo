@@ -19,16 +19,21 @@ cd repo
 ./sync setup
 ```
 
-`./sync setup` holds your hand through it:
+`./sync setup` is fully automatic — **no copy-paste needed**:
 
 1. Creates a Python virtual environment and installs `ytmusicapi` + `yt-dlp`
-2. Walks you through copying the **Request Headers** of one request from
-   `music.youtube.com` and pasting it here
+2. Reads your YouTube login straight from your installed browser
+   (Chrome, Chromium, Edge, Brave, Firefox, Waterfox, LibreWolf — including Flatpak)
 3. Tests the connection and tells you how many liked songs it found
 
-The result is saved to `browser.json`, which is git-ignored.
+The login is saved to `browser.json`, which is git-ignored.
 
-### Getting your Request Headers (any browser)
+To auto-connect you just need to be **already logged into YouTube/Google** in one of
+your browsers. Everything else is handled.
+
+### No browser login found?
+
+`./sync setup` falls back to asking you to paste the **Request Headers** panel:
 
 1. Open `https://music.youtube.com` and log in
 2. Press `F12` → **Network** tab → reload the page (`Ctrl+R`)
@@ -38,15 +43,15 @@ The result is saved to `browser.json`, which is git-ignored.
    - Firefox: right-click inside the panel → **Copy**
 5. Paste it into the terminal, press `Enter`, then `Ctrl-D` to finish
 
-> **Important:** copy the whole Request Headers panel. Copying just the cookie or
-> `document.cookie` misses/truncates YouTube's protected cookies (`__Secure-3PSID`,
-> `HSID`, …) and the connection will look signed-out.
+> Copy the whole panel, not just the cookie — a partial cookie (e.g. from
+> `document.cookie`) misses YouTube's protected cookies and looks signed-out.
 
 ## Usage
 
 ```bash
-./sync            # download all new liked songs
-./sync auth       # re-authenticate if your session expires
+./sync                 # download all new liked songs
+./sync auth            # reconnect automatically from your browser
+./sync auth --manual   # reconnect by pasting Request Headers yourself
 ```
 
 ## How it works
@@ -61,5 +66,6 @@ The result is saved to `browser.json`, which is git-ignored.
 
 - `browser.json` contains your login cookie — it's git-ignored, never commit or
   share it. Don't paste browser.json content into GitHub issues.
-- Cookies can expire. If downloads stop working, run `./sync auth` to reconnect
-  with a fresh cookie.
+- Auto-connect reads cookies from your own browsers only; on Linux it may ask to
+  unlock your login keyring (that's how Chrome-family cookies are decrypted).
+- Cookies can expire. If downloads stop working, run `./sync auth` to reconnect.
