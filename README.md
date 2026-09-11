@@ -14,8 +14,8 @@ new likes.
 ## First-run setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ytmusic-sync.git
-cd ytmusic-sync
+git clone https://github.com/CodeAcoustic/repo.git
+cd repo
 ./sync setup
 ```
 
